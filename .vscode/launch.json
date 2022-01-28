@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceRoot}/target/debug/Rust2048",
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": "build",
+        }
+    ]
+}
