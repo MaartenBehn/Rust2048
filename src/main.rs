@@ -17,6 +17,8 @@ fn main() {
     }
 
     let mut averageScore = 0;
+    let mut cont = 0;
+
     for i in 0..tries {
         loop{
             let (pos_x, pos_y, val) = get_next_Incert(&field, size_x, size_y);
@@ -26,6 +28,7 @@ fn main() {
                 println!("Score: {:?}", score);
 
                 field = create_field(size_x, size_y);
+                cont = 0;
                 break;
             }
             field[pos_y][pos_x] = val;
@@ -51,9 +54,22 @@ fn main() {
                     mov = 0;
                 }
             }
+            else if mode == 2 {
+                if cont % 100 == 0 {
+                    mov = 1;
+                }
+                else if lastMov == 0 {
+                    mov = 2;
+                }
+                else if lastMov == 2 {
+                    mov = 0;
+                }
+            }
     
             field = move_field(field, size_x, size_y, mov);
             lastMov = mov;
+
+            cont += 1;
         }
     }
 
