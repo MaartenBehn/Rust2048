@@ -1,16 +1,25 @@
 use rand::Rng;
 use console::Term;
 
+/*
+modes: 
+1: 304
+2: 88
+3: doesn't finsh
+4: 320
+*/
+
 fn main() {
+
+    let mode = 3;
 
     let size_x: usize = 4;
     let size_y: usize = 4;
     let mut field = create_field(size_x, size_y);
     let mut mov = -1;
     let stdout = Term::buffered_stdout();
-    let mode = 0;
     let mut lastMov = 0;
-    let mut tries = 1000;
+    let mut tries = 100;
 
     if mode == 0 {
         tries = 1;
@@ -65,11 +74,30 @@ fn main() {
                     mov = 0;
                 }
             }
+            else if mode == 3 {
+                let deepness = 10;
+                let (best_mov, best_score) = search_for_best_move(&field, size_x, size_y, 0, deepness);
+                mov = best_mov;
+            }
+            else if mode == 4 {
+                let deepness = 7;
+                if cont != 0 && cont % 10 == 0 {
+                    let (best_mov, best_score) = search_for_best_move(&field, size_x, size_y, 0, deepness);
+                    mov = best_mov;
+                }
+                else if lastMov == 0 {
+                    mov = 2;
+                }
+                else {
+                    mov = 0;
+                }
+            }
     
             field = move_field(field, size_x, size_y, mov);
             lastMov = mov;
 
             cont += 1;
+            println!("{:?} ", cont);
         }
     }
 
@@ -77,6 +105,36 @@ fn main() {
         averageScore /= tries;
         println!("Avergae Score: {:?}", averageScore);
     }
+}
+
+fn search_for_best_move(field: &Vec<Vec<i32>>, size_x: usize, size_y: usize, deepness: i32, max_deepness: i32) -> (i8, i32) {
+
+    let mut best_mov = 0;
+    let mut best_score = 0;
+
+    for i in 0..3 {
+        let mut field_copy = field.clone();
+        field_copy = move_field(field_copy, size_x, size_y, i);
+        let (pos_x, pos_y, val) = get_next_Incert(&field_copy, size_x, size_y);
+
+        let mut score = 0;
+        if val == -1 || deepness >= max_deepness {
+
+            score = get_score(&field_copy, size_x, size_y);
+            
+        }else{
+            field_copy[pos_y][pos_x] = val;
+            let (_, new_score) = search_for_best_move(&field_copy, size_x, size_y, deepness + 1, max_deepness);
+            score = new_score;
+        }
+
+        if best_score < score {
+            best_score = score;
+            best_mov = i;
+        }
+    }
+
+    return (best_mov, best_score);
 }
 
 fn create_field(size_x: usize, size_y: usize) -> Vec<Vec<i32>>{
@@ -121,9 +179,7 @@ fn get_score(field: &Vec<Vec<i32>>, size_x: usize, size_y: usize) -> i32{
     let mut score = 0;
     for x in 0..size_x {
         for y in 0..size_y{
-            if field[y][x] > score {
-                score = field[y][x];
-            }
+            score += field[y][x];
         }
     }
     score
